@@ -3,6 +3,7 @@ package com.accenture.externalapis.demo.client;
 import com.accenture.externalapis.demo.config.ExternalServiceProperties;
 import com.accenture.externalapis.demo.dto.BookApiResponse;
 import com.accenture.externalapis.demo.dto.BookDto;
+import org.springframework.core.codec.DecodingException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -40,6 +41,7 @@ public class BookWebClientImpl implements BookWebClient {
                 .bodyToMono(BookApiResponse.class)
                 .onErrorMap(WebClientResponseException.class, originalException -> new ClientException("Error processing external API response", originalException))
                 .onErrorMap(WebClientRequestException.class, originalException -> new ClientException("Error fetching book", originalException))
+                .onErrorMap(DecodingException.class, originalException -> new ClientException("Error decoding external API", originalException))
                 .timeout(Duration.ofSeconds(5))
                 .onErrorMap(TimeoutException.class, originalException ->
                         new ClientException("External API request timed out", originalException));
@@ -59,6 +61,7 @@ public class BookWebClientImpl implements BookWebClient {
                 .bodyToFlux(BookApiResponse.class)
                 .onErrorMap(WebClientResponseException.class, originalException -> new ClientException("Error processing external API response", originalException))
                 .onErrorMap(WebClientRequestException.class, originalException -> new ClientException("Error fetching book", originalException))
+                .onErrorMap(DecodingException.class, originalException -> new ClientException("Error decoding external API", originalException))
                 .timeout(Duration.ofSeconds(5))
                 .onErrorMap(TimeoutException.class, originalException -> new ClientException("External API request timed out", originalException));
 
